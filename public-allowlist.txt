@@ -2,7 +2,7 @@ src/app
 src/lib
 src/services
 src/components
-README.md
+README_PUBLIC.md
 ARCHITECTURE.md
 NON_GOALS.md
 collaboration
