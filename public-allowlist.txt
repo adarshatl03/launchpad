@@ -1,0 +1,15 @@
+src/app
+src/lib
+src/services
+src/components
+README.md
+ARCHITECTURE.md
+NON_GOALS.md
+collaboration
+ROADMAP.md
+LICENSE.md
+package.json
+package-lock.json
+components.json
+public-allowlist.txt
+CHANGELOG_PUBLIC.md
