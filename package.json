@@ -9,7 +9,9 @@
     "lint": "next lint",
     "manage": "tsx scripts/manager.ts",
     "prepare": "husky",
-    "docs:tree": "tsx scripts/generate-docs-tree.ts"
+    "docs:tree": "tsx scripts/generate-docs-tree.ts",
+    "changelog": "npx tsx scripts/update-changelog-from-tasks.ts && npx tsx scripts/generate-public-changelog.ts",
+    "release": "npm run changelog && npx tsx scripts/release-cut.ts && npm run changelog"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.8",
