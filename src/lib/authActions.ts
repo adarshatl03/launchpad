@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+import { loginSchema, signupSchema } from "./schemas";
+
 export type FormState =
   | {
       error?: string;
@@ -14,8 +16,14 @@ export type FormState =
 export async function login(prevState: FormState, formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
+  const data = Object.fromEntries(formData);
+  const parsed = loginSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const { email, password } = parsed.data;
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
@@ -33,9 +41,14 @@ export async function login(prevState: FormState, formData: FormData) {
 export async function signup(prevState: FormState, formData: FormData) {
   const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const fullName = formData.get("fullName") as string;
+  const data = Object.fromEntries(formData);
+  const parsed = signupSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const { email, password, fullName } = parsed.data;
 
   const { error } = await supabase.auth.signUp({
     email,
