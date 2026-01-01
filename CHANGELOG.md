@@ -11,20 +11,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.6] - 2026-01-01
-
-## [0.1.5] - 2026-01-01
-
-## [0.1.4] - 2026-01-01
-
-## [0.1.3] - 2026-01-01
-
-## [0.1.2] - 2026-01-01
-
-## [0.1.1] - 2026-01-01
+## [0.1.7] - 2026-01-02
 
 ### Added
 
+- [FE] Build Login Page
+- Implement Form Validation (Zod/HTML5)
+- Handle Loading & Error States (via Server Actions)
+- [FE] Build Signup Page
+- [FE] Implement Auth Context/Middleware for protected routes
+- Redirect unauthenticated users to Landing Page
+- Persist session on reload
+- [BE] Set up Supabase project
+- [BE] Configure Supabase Auth (Email/Password)
+- [BE] Create `ProductPlan` table schema
+- [BE] Create `PlanVersion` table schema
 - Script: `release-cut.ts` (Automated Version Bump)
 - Workflow: `release-main.yml` (Trigger Release)
 - Workflow: `back-merge.yml` (Sync `main` -> `develop`)
