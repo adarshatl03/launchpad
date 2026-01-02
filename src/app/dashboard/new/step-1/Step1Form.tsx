@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
 import { ArrowRight, Save, Loader2 } from "lucide-react";
 import { createPlan, updatePlanStep } from "@/lib/actions/planActions";
 import { PlanInputs } from "@/types/plan";
+import { useAutoSave } from "@/hooks/useAutoSave";
+import { AutoSaveIndicator } from "@/components/wizard/AutoSaveIndicator";
 
 interface Step1FormProps {
   planId?: string;
@@ -12,18 +14,46 @@ interface Step1FormProps {
 }
 
 export default function Step1Form({ planId, initialData }: Step1FormProps) {
-  const handleSave = async (prevState: unknown, formData: FormData) => {
+  // Form state for auto-save
+  const [formData, setFormData] = useState<Partial<PlanInputs>>({
+    problemStatement: initialData?.problemStatement || "",
+    targetUser: initialData?.targetUser || "",
+    valueProposition: initialData?.valueProposition || "",
+    nonGoals: initialData?.nonGoals || "",
+  });
+
+  // Auto-save handler
+  const handleAutoSave = useCallback(
+    async (data: Partial<PlanInputs>) => {
+      if (!planId) return; // Only auto-save for existing plans
+      await updatePlanStep(planId, 1, data);
+    },
+    [planId],
+  );
+
+  // Auto-save hook
+  const { status: autoSaveStatus } = useAutoSave({
+    data: formData,
+    onSave: handleAutoSave,
+    delay: 500,
+    enabled: !!planId, // Only enable for existing plans
+  });
+
+  const handleSave = async (prevState: unknown, formDataObj: FormData) => {
     const rawData = {
-      problemStatement: formData.get("problem") as string,
-      targetUser: formData.get("user") as string,
-      valueProposition: formData.get("value") as string,
-      nonGoals: formData.get("nonGoals") as string,
+      problemStatement: formDataObj.get("problem") as string,
+      targetUser: formDataObj.get("user") as string,
+      valueProposition: formDataObj.get("value") as string,
+      nonGoals: formDataObj.get("nonGoals") as string,
     };
 
     if (!planId) {
       // Create new
-      formData.append("title", rawData.problemStatement.slice(0, 50) + "...");
-      return createPlan(prevState, formData);
+      formDataObj.append(
+        "title",
+        rawData.problemStatement.slice(0, 50) + "...",
+      );
+      return createPlan(prevState, formDataObj);
     } else {
       // Update existing (and move to next step)
       return updatePlanStep(planId, 2, rawData);
@@ -34,11 +64,14 @@ export default function Step1Form({ planId, initialData }: Step1FormProps) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h2 className="text-xl font-semibold text-white">Idea Clarifier</h2>
-        <p className="text-sm text-neutral-400">
-          Describe the core of your product. Be specific.
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold text-white">Idea Clarifier</h2>
+          <p className="text-sm text-neutral-400">
+            Describe the core of your product. Be specific.
+          </p>
+        </div>
+        <AutoSaveIndicator status={autoSaveStatus} />
       </div>
 
       <form action={action} className="space-y-8">
@@ -63,7 +96,13 @@ export default function Step1Form({ planId, initialData }: Step1FormProps) {
             className="w-full rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
             placeholder="e.g. Remote teams struggle to track asynchronous decisions..."
             required
-            defaultValue={initialData?.problemStatement}
+            value={formData.problemStatement}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                problemStatement: e.target.value,
+              }))
+            }
           />
         </div>
 

@@ -12,6 +12,8 @@ import {
 import Link from "next/link";
 import { finishPlan } from "@/lib/actions/planActions";
 import { PlanInputs } from "@/types/plan";
+import { generatePlanPDF } from "@/lib/utils/pdfExport";
+import { toast } from "sonner";
 
 // Re-using constants (in a real app, these should be shared/exported)
 // Ideally, fetch the map of feature IDs to labels from a shared constant file.
@@ -31,6 +33,23 @@ export default function Step5Form({ planId, initialData }: Step5FormProps) {
   const handleFinish = async () => {
     if (!planId) return;
     await finishPlan(planId);
+  };
+
+  const handleExportPDF = () => {
+    if (!initialData) return;
+
+    try {
+      generatePlanPDF({
+        title:
+          initialData.problemStatement?.slice(0, 50) + "..." || "Product Brief",
+        inputs: initialData,
+        createdAt: new Date().toISOString(),
+      });
+      toast.success("PDF exported successfully!");
+    } catch (error) {
+      toast.error("Failed to export PDF");
+      console.error(error);
+    }
   };
 
   const [state, action, isPending] = useActionState(handleFinish, null);
@@ -198,6 +217,7 @@ export default function Step5Form({ planId, initialData }: Step5FormProps) {
           <Button
             variant="outline"
             type="button"
+            onClick={handleExportPDF}
             className="flex-1 sm:flex-none border-neutral-700 text-neutral-300 hover:text-white"
           >
             <Download className="mr-2 h-4 w-4" />

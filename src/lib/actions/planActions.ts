@@ -21,52 +21,18 @@ export async function createPlan(prevState: unknown, formData: FormData) {
     return { error: "Unauthorized" };
   }
 
-  // --- GATING LOGIC ---
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("subscription_status")
-    .eq("id", user.id)
-    .single();
+  const title = formData.get("title") as string;
 
-  const isPro =
-    profile?.subscription_status === "pro" ||
-    profile?.subscription_status === "team";
-
-  if (!isPro) {
-    const { count, error: countError } = await supabase
-      .from("product_plans")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .neq("status", "archived"); // Count non-archived plans
-
-    if (countError) {
-      return { error: "Failed to verify plan limits" };
+  // Validate
+  const result = createPlanSchema.safeParse({ title });
+  if (!result.success) {
+    if ("flatten" in result.error) {
+      const flat = result.error.flatten();
+      const firstError = flat.fieldErrors.title?.[0] || "Invalid input";
+      return { error: firstError };
     }
-
-    if (count !== null && count >= 1) {
-      return {
-        error: "Free Plan Limit Reached (Max 1). Please Upgrade to Pro.",
-      };
-    }
+    return { error: "Validation failed" };
   }
-  // --------------------
-
-  // Extract inputs
-  const problemStatement = formData.get("problem") as string;
-  const targetUser = formData.get("user") as string;
-  const valueProposition = formData.get("value") as string;
-  const nonGoals = formData.get("nonGoals") as string;
-
-  // Generate title from problem statement (first 50 chars)
-  const title =
-    (formData.get("title") as string) || problemStatement?.slice(0, 50) + "...";
-
-  const initialInputs: Partial<PlanInputs> = {
-    problemStatement,
-    targetUser,
-    valueProposition,
-    nonGoals,
-  };
 
   // Insert
   const { data, error } = await supabase
@@ -74,27 +40,19 @@ export async function createPlan(prevState: unknown, formData: FormData) {
     .insert({
       user_id: user.id,
       title: title,
-      current_step: 2, // Move to Step 2 directly
-      inputs: initialInputs,
+      current_step: 1,
+      inputs: {},
     })
     .select("id")
     .single();
 
   if (error) {
     console.error("Create Plan Error:", error);
-    console.error("Error details:", {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code,
-    });
-    return {
-      error: `Failed to create plan: ${error.message || "Unknown error"}`,
-    };
+    return { error: "Failed to create plan" };
   }
 
   revalidatePath("/dashboard");
-  redirect(`/dashboard/new/step-2?planId=${data.id}`);
+  redirect(`/dashboard/new/step-1?planId=${data.id}`);
 }
 
 export async function updatePlanStep(
@@ -144,7 +102,7 @@ export async function updatePlanStep(
   }
 
   revalidatePath(`/dashboard/new/step-${step}`);
-  redirect(`/dashboard/new/step-${step}?planId=${planId}`);
+  return { success: true };
 }
 
 export async function getPlan(planId: string) {

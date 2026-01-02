@@ -15,21 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [DOCS] Generate API & Architecture Documentation (`API.md`)
-- Authenticated Plan Creation (Requires Auth Mock)
-- Guest Navigation & Protection (Landing, Redirects)
-- [BE] Configure Stripe Environment (Test Mode)
-- [BE] Create Stripe Products & Prices (Free, Pro, Team)
-- [BE] Create Server Action: `createCheckoutSession`
-- [BE] Create Server Action: `createPortalSession` (Billing Management)
-- [BE] Implement `/api/webhooks/stripe` endpoint
-- [BE] Handle Events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.updated`
-- [BE] Update Database: Sync `subscription_status` and `stripe_customer_id`
-- [BE] Implement `PlanLimits` logic (e.g., 1 plan for Free, unlimited for Pro)
-- [BE] Enforce Limits in `createPlan` action
-- [FE] Create `BillingSettings` page
-- [FE] Display Current Plan & Usage (Basic)
-- [FE] Add "Manage Subscription" button (Portal)
+- Layout: Clean, distinct from Web UI
 - [BE] Implement `calculateMVPComplexity(inputs)`
 - Rule: No Auth -> Roles disabled
 - Rule: Subscriptions -> Increase Billing complexity
@@ -112,5 +98,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial project structure.
 - Documentation: README, ARCHITECTURE, CONTRIBUTING, TESTING, ENVIRONMENT.
 - Agent rules and context files.
+
+## [0.1.0] - 2026-01-01
+
+### Added
+
 - Project initialization with Next.js, TypeScript, TailwindCSS, and ESLint.
 - Shadcn/UI configuration.
