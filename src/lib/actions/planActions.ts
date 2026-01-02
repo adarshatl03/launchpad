@@ -21,19 +21,6 @@ export async function createPlan(prevState: unknown, formData: FormData) {
     return { error: "Unauthorized" };
   }
 
-  const title = formData.get("title") as string;
-
-  // Validate
-  const result = createPlanSchema.safeParse({ title });
-  if (!result.success) {
-    if ("flatten" in result.error) {
-      const flat = result.error.flatten();
-      const firstError = flat.fieldErrors.title?.[0] || "Invalid input";
-      return { error: firstError };
-    }
-    return { error: "Validation failed" };
-  }
-
   // --- GATING LOGIC ---
   const { data: profile } = await supabase
     .from("profiles")
@@ -69,6 +56,10 @@ export async function createPlan(prevState: unknown, formData: FormData) {
   const targetUser = formData.get("user") as string;
   const valueProposition = formData.get("value") as string;
   const nonGoals = formData.get("nonGoals") as string;
+
+  // Generate title from problem statement (first 50 chars)
+  const title =
+    (formData.get("title") as string) || problemStatement?.slice(0, 50) + "...";
 
   const initialInputs: Partial<PlanInputs> = {
     problemStatement,
