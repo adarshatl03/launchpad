@@ -82,7 +82,15 @@ export async function createPlan(prevState: unknown, formData: FormData) {
 
   if (error) {
     console.error("Create Plan Error:", error);
-    return { error: "Failed to create plan" };
+    console.error("Error details:", {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    });
+    return {
+      error: `Failed to create plan: ${error.message || "Unknown error"}`,
+    };
   }
 
   revalidatePath("/dashboard");
