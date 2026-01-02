@@ -58,7 +58,7 @@ export async function createPlan(prevState: unknown, formData: FormData) {
 export async function updatePlanStep(
   planId: string,
   step: number,
-  inputs: Partial<PlanInputs>,
+  inputs: Partial<PlanInputs>
 ) {
   const supabase = await createClient();
   const {
@@ -147,4 +147,48 @@ export async function finishPlan(planId: string) {
   revalidatePath("/dashboard");
   // Redirect to dashboard or detail view
   redirect("/dashboard");
+}
+
+export async function createShareToken(planId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const shareToken = crypto.randomUUID();
+
+  const { error } = await supabase
+    .from("product_plans")
+    .update({
+      share_token: shareToken,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", planId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("Create Share Token Error:", error);
+    return { error: "Failed to generate share link" };
+  }
+
+  return { success: true, token: shareToken };
+}
+
+export async function getPlanByToken(token: string) {
+  const supabase = await createClient();
+
+  // We use a separate query or bypass auth check because this is public
+  // RLS mapping: "Public can view plans with valid share token"
+  const { data, error } = await supabase
+    .from("product_plans")
+    .select("*, profiles(full_name)")
+    .eq("share_token", token)
+    .single();
+
+  if (error) {
+    console.error("Get Plan By Token Error:", error);
+    return null;
+  }
+  return data;
 }

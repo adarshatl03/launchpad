@@ -16,7 +16,6 @@ interface Step3FormProps {
 
 export default function Step3Form({
   planId,
-  initialData,
   generatedRoadmap,
 }: Step3FormProps) {
   // Server Action

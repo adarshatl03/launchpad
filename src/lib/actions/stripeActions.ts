@@ -3,7 +3,6 @@
 import { stripe } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { SUBSCRIPTION_PLANS } from "@/lib/config/subscriptions";
 
 export async function createCheckoutSession(priceId: string) {
   const supabase = await createClient();
