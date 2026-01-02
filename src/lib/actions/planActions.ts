@@ -144,7 +144,7 @@ export async function updatePlanStep(
   }
 
   revalidatePath(`/dashboard/new/step-${step}`);
-  return { success: true };
+  redirect(`/dashboard/new/step-${step}?planId=${planId}`);
 }
 
 export async function getPlan(planId: string) {
