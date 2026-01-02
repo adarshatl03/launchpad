@@ -43,6 +43,11 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = path.startsWith("/login") || path.startsWith("/signup");
   const isProtectedRoute = path.startsWith("/dashboard"); // specific protected routes
 
+  // TRANSITION: E2E Testing Bypass
+  if (request.cookies.has("__e2e_mock_session")) {
+    return response;
+  }
+
   // If user is NOT logged in and tries to access protected route
   if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();

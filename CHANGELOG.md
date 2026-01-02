@@ -11,10 +11,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-01-01
+
+### Added
+
+- [DOCS] Generate API & Architecture Documentation (`API.md`)
+- Authenticated Plan Creation (Requires Auth Mock)
+- Guest Navigation & Protection (Landing, Redirects)
+- [BE] Configure Stripe Environment (Test Mode)
+- [BE] Create Stripe Products & Prices (Free, Pro, Team)
+- [BE] Create Server Action: `createCheckoutSession`
+- [BE] Create Server Action: `createPortalSession` (Billing Management)
+- [BE] Implement `/api/webhooks/stripe` endpoint
+- [BE] Handle Events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.updated`
+- [BE] Update Database: Sync `subscription_status` and `stripe_customer_id`
+- [BE] Implement `PlanLimits` logic (e.g., 1 plan for Free, unlimited for Pro)
+- [BE] Enforce Limits in `createPlan` action
+- [FE] Create `BillingSettings` page
+- [FE] Display Current Plan & Usage (Basic)
+- [FE] Add "Manage Subscription" button (Portal)
+- [BE] Implement `calculateMVPComplexity(inputs)`
+- Rule: No Auth -> Roles disabled
+- Rule: Subscriptions -> Increase Billing complexity
+- Rule: Admin Panel -> High complexity bump
+- [BE] Implement `generateRoadmap(complexity)`
+- Logic: Map score to timeline bands (weeks, not dates)
+- Logic: Identify External Dependencies (Rights/Risk)
+- [BE] Implement `recommendTechStack(constraints)`
+- Rule: Small team + speed -> Next.js + Supabase
+- Rule: Scale required -> Next.js + Postgres + AWS
+- Rule: Payments needed -> Stripe
+- **Rules Engine Implementation** (`src/lib/logic/rulesEngine.ts`):
+  - `calculateComplexity`: Dynamic score based on features.
+  - `generateRoadmap`: Server-side timeline generation.
+  - `recommendTechStack`: Context-aware stack recommendations.
+- **Backend Persistence**:
+  - Wired Steps 1-5 to Supabase via Server Actions (`planActions.ts`).
+  - Implemented `createPlan`, `updatePlanStep`, and `finishPlan`.
+  - Added data pre-filling for all wizard steps ("Edit Mode").
+- **UI Improvements**:
+  - Refactored Wizard Steps to Server Component + Client Form pattern.
+  - Interactive Complexity Meter (Step 2).
+  - Status-aware Stepper Navigation (Step 5).
+- Shared Feature Configuration (`src/lib/config/features.ts`).
+
 ## [0.1.10] - 2026-01-02
 
 ### Added
 
+- [FE] Build Category Selection UI (Auth, Roles, Core Features)
+- UI: Toggle switches / Multi-select cards
+- [FE] Implement Complexity Score Calculation
+- Logic: Real-time update of complexity bar/meter
+- [FE] Display Milestones and Dependencies
+- [FE] Implement Inputs: Problem, User, Value Prop, Alternatives
+- Field: Non-Goals (Mandatory)
+- [FE] Implement Auto-save logic
+- Show "Saving..." / "Saved" status
+- [BE] Generate TypeScript types from schema
+- [FE] Build Review Page (Read-only summary)
+- Generated: "Product Brief" summary section
+- [FE] Implement PDF Export functionality
+- [FE] Implement Timeline Generation Logic based on Complexity
+- [FE] Build Input Form (Product Type, Scale, Team)
+- [FE] Display Recommended Stack
+- [FE] Build Public Landing Page (Home)
+- [FE] Create Dashboard Layout
 - [FE] Build Login Page
 - Implement Form Validation (Zod/HTML5)
 - Handle Loading & Error States (via Server Actions)
@@ -50,10 +112,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial project structure.
 - Documentation: README, ARCHITECTURE, CONTRIBUTING, TESTING, ENVIRONMENT.
 - Agent rules and context files.
-
-## [0.1.0] - 2026-01-01
-
-### Added
-
 - Project initialization with Next.js, TypeScript, TailwindCSS, and ESLint.
 - Shadcn/UI configuration.
