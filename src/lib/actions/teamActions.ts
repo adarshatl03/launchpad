@@ -107,3 +107,54 @@ export async function getOrganizationMembers(orgId: string) {
   }
   return data;
 }
+
+export async function acceptInvite(token: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "unauthorized" };
+  }
+
+  // 1. Verify invitation
+  const { data: invite, error: inviteError } = await supabase
+    .from("invitations")
+    .select("*, organizations(name)")
+    .eq("token", token)
+    .single();
+
+  if (inviteError || !invite) {
+    return { error: "Invalid or expired invitation" };
+  }
+
+  // 2. Check expiry
+  if (new Date(invite.expires_at) < new Date()) {
+    return { error: "Invitation has expired" };
+  }
+
+  // 3. Create membership
+  const { error: memberError } = await supabase
+    .from("organization_members")
+    .insert({
+      organization_id: invite.organization_id,
+      user_id: user.id,
+      role: invite.role,
+    });
+
+  if (memberError) {
+    // If it's a unique constraint error, user is already a member
+    if (memberError.code === "23505") {
+      return { error: "You are already a member of this organization" };
+    }
+    console.error("Error accepting invite:", memberError);
+    return { error: "Failed to join organization" };
+  }
+
+  // 4. Delete invitation
+  await supabase.from("invitations").delete().eq("id", invite.id);
+
+  revalidatePath("/dashboard/teams");
+  return { success: true, orgName: invite.organizations.name };
+}

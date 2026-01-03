@@ -20,7 +20,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: "pro",
     name: "Pro",
     description: "For serious founders",
-    stripePriceId: process.env.STRIPE_PRICE_ID_PRO || "", // From Env
+    stripePriceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PRO || "", // From Env
     price: 1900, // $19.00 in cents
     features: [
       "Unlimited Plans",

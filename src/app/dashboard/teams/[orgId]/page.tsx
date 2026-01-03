@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
-import OrgDetailClient from "@/app/dashboard/teams/[orgId]/OrgDetailClient";
+import OrgDetailClient from "./OrgDetailClient";
+
+export const dynamic = "force-dynamic";
 
 export default async function OrgDetailPage({
   params,

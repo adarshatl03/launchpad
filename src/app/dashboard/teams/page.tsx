@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import TeamsClient from "@/app/dashboard/teams/TeamsClient";
+import TeamsClient from "./TeamsClient";
 import { Button } from "@/components/ui/Button";
 import { Plus } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default async function TeamsPage() {
   const supabase = await createClient();

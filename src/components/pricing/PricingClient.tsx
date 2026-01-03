@@ -7,11 +7,24 @@ import { SUBSCRIPTION_PLANS } from "@/lib/config/subscriptions";
 import { FadeIn, ScaleIn } from "@/components/ui/Motion";
 import { User } from "@supabase/supabase-js";
 
+import { createCheckoutSession } from "@/lib/actions/stripeActions";
+import { useRouter } from "next/navigation";
+
 interface PricingClientProps {
   user: User | null;
 }
 
 export function PricingClient({ user }: PricingClientProps) {
+  const router = useRouter();
+
+  const handleSubscription = async (priceId: string) => {
+    if (!user) {
+      router.push(`/signup?redirectTo=/pricing`);
+      return;
+    }
+    await createCheckoutSession(priceId);
+  };
+
   return (
     <div className="min-h-screen bg-neutral-950 py-24 px-4 text-neutral-50 selection:bg-neutral-800">
       <div className="mx-auto max-w-7xl">
@@ -90,19 +103,12 @@ export function PricingClient({ user }: PricingClientProps) {
                     </Link>
                   </Button>
                 ) : (
-                  <form action="/api/checkout" method="POST">
-                    <input
-                      type="hidden"
-                      name="priceId"
-                      value={plan.stripePriceId}
-                    />
-                    <Button
-                      type="submit"
-                      className="w-full bg-white text-black hover:bg-neutral-200"
-                    >
-                      {user ? "Upgrade Now" : "Get Started"}
-                    </Button>
-                  </form>
+                  <Button
+                    onClick={() => handleSubscription(plan.stripePriceId)}
+                    className="w-full bg-white text-black hover:bg-neutral-200"
+                  >
+                    {user ? "Upgrade Now" : "Get Started"}
+                  </Button>
                 )}
               </ScaleIn>
             );
