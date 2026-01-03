@@ -113,7 +113,7 @@ export function PricingClient({ user }: PricingClientProps) {
         <FadeIn delay={0.5}>
           <div className="mt-16 text-center">
             <p className="text-sm text-neutral-500">
-              All plans include 14-day money-back guarantee. No credit card
+              All plans include 14‑day money‑back guarantee. No credit card
               required for Free plan.
             </p>
           </div>

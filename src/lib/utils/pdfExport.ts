@@ -46,7 +46,7 @@ export function generatePlanPDF(planData: {
   doc.text(
     `Created: ${new Date(planData.createdAt).toLocaleDateString()}`,
     20,
-    yPosition
+    yPosition,
   );
   yPosition += 15;
   doc.setTextColor(0, 0, 0);

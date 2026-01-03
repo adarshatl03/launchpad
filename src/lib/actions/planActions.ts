@@ -58,7 +58,7 @@ export async function createPlan(prevState: unknown, formData: FormData) {
 export async function updatePlanStep(
   planId: string,
   step: number,
-  inputs: Partial<PlanInputs>
+  inputs: Partial<PlanInputs>,
 ) {
   const supabase = await createClient();
   const {

@@ -3,18 +3,22 @@
 import { motion, HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-interface FadeInProps extends HTMLMotionProps<"div"> {
+// FadeIn animation with optional direction and distance
+export interface FadeInProps extends HTMLMotionProps<"div"> {
+  /** Delay before the animation starts (seconds) */
   delay?: number;
+  /** Direction of the entrance animation */
   direction?: "up" | "down" | "left" | "right" | "none";
+  /** Distance to travel from the start position (pixels) */
   distance?: number;
 }
 
 export function FadeIn({
   children,
-  className,
   delay = 0,
   direction = "up",
   distance = 20,
+  className,
   ...props
 }: FadeInProps) {
   const directions = {
@@ -27,20 +31,9 @@ export function FadeIn({
 
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-        ...directions[direction],
-      }}
-      animate={{
-        opacity: 1,
-        x: 0,
-        y: 0,
-      }}
-      transition={{
-        duration: 0.5,
-        delay,
-        ease: "easeOut",
-      }}
+      initial={{ opacity: 0, ...directions[direction] }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
       className={cn(className)}
       {...props}
     >
@@ -49,12 +42,23 @@ export function FadeIn({
   );
 }
 
+// ScaleIn animation with premium easing
+export interface ScaleInProps extends HTMLMotionProps<"div"> {
+  /** Delay before the animation starts (seconds) */
+  delay?: number;
+  /** Duration of the animation (seconds) */
+  duration?: number;
+  /** Additional class names */
+  className?: string;
+}
+
 export function ScaleIn({
   children,
-  className,
   delay = 0,
+  duration = 0.5,
+  className,
   ...props
-}: HTMLMotionProps<"div"> & { delay?: number }) {
+}: ScaleInProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -62,7 +66,7 @@ export function ScaleIn({
       transition={{
         duration: 0.4,
         delay,
-        ease: [0.16, 1, 0.3, 1], // Custom cubic-bezier for a "premium" feel
+        ease: [0.16, 1, 0.3, 1], // premium cubic‑bezier
       }}
       className={cn(className)}
       {...props}

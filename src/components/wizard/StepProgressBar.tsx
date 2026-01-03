@@ -39,7 +39,7 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
             href={isClickable ? step.href : "#"}
             className={cn(
               "flex flex-col items-center gap-2",
-              !isClickable && "cursor-default pointer-events-none"
+              !isClickable && "cursor-default pointer-events-none",
             )}
           >
             <div
@@ -49,7 +49,7 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
                   ? "border-amber-500 bg-amber-500 text-black"
                   : isCurrent
                     ? "border-amber-500 bg-black text-amber-500"
-                    : "border-neutral-700 bg-neutral-900 text-neutral-500"
+                    : "border-neutral-700 bg-neutral-900 text-neutral-500",
               )}
             >
               {isCompleted ? <Check className="h-4 w-4" /> : index + 1}
@@ -57,7 +57,7 @@ export function StepProgressBar({ steps, currentStep }: StepProgressBarProps) {
             <span
               className={cn(
                 "hidden text-xs font-medium sm:block",
-                isCompleted || isCurrent ? "text-white" : "text-neutral-500"
+                isCompleted || isCurrent ? "text-white" : "text-neutral-500",
               )}
             >
               {step.label}

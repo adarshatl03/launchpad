@@ -15,10 +15,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+<<<<<<< HEAD
+
+- [FE] Build Pricing Page (Public View)
+- **Task**: Create `PricingTable` component
+- **Task**: Implement "Sign Up" CTAs
+- [DOCS] Generate API & Architecture Documentation (`API.md`)
+- Authenticated Plan Creation (Requires Auth Mock)
+- Guest Navigation & Protection (Landing, Redirects)
+- [BE] Configure Stripe Environment (Test Mode)
+- [BE] Create Stripe Products & Prices (Free, Pro, Team)
+- [BE] Create Server Action: `createCheckoutSession`
+- [BE] Create Server Action: `createPortalSession` (Billing Management)
+- [BE] Implement `/api/webhooks/stripe` endpoint
+- [BE] Handle Events: `checkout.session.completed`, `invoice.payment_succeeded`, `customer.subscription.updated`
+- [BE] Update Database: Sync `subscription_status` and `stripe_customer_id`
+- [BE] Implement `PlanLimits` logic (e.g., 1 plan for Free, unlimited for Pro)
+- [BE] Enforce Limits in `createPlan` action
+- [FE] Create `BillingSettings` page
+- [FE] Display Current Plan & Usage (Basic)
+- # [FE] Add "Manage Subscription" button (Portal)
 - [FE] Build Public Shared View (Token-based Read-only)
 - Security: Ensure no edit capabilities
 - [BE] Implement Share Token Logic (Read-only access)
 - Layout: Clean, distinct from Web UI
+  > > > > > > > cd93e5529b82795e19ec418041059f02dfe585e8
 - [BE] Implement `calculateMVPComplexity(inputs)`
 - Rule: No Auth -> Roles disabled
 - Rule: Subscriptions -> Increase Billing complexity

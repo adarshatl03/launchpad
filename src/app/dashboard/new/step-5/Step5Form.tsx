@@ -55,7 +55,7 @@ export default function Step5Form({
     try {
       const result = await createShareToken(planId);
       if ("error" in result) {
-        toast.error(result.error);
+        toast.error(result.error ?? "Error generating share link");
       } else {
         setCurrentShareToken(result.token);
         const shareUrl = `${window.location.origin}/share/${result.token}`;

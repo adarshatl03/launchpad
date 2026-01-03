@@ -8,6 +8,7 @@ import {
 } from "docx";
 import { saveAs } from "file-saver";
 import { PlanInputs } from "@/types/plan";
+import { FEATURE_CATEGORIES } from "@/lib/config/features";
 
 export async function generatePlanDOCX(planData: {
   title: string;
@@ -87,13 +88,23 @@ export async function generatePlanDOCX(planData: {
             heading: HeadingLevel.HEADING_1,
             spacing: { before: 400, after: 200 },
           }),
-          ...(planData.inputs.features?.map(
-            (feature) =>
-              new Paragraph({
-                text: `• ${feature}`,
-                bullet: { level: 0 },
-              }),
-          ) || []),
+
+          ...(planData.inputs.features?.map((featureId: string) => {
+            // Find label
+            let label = featureId;
+            for (const cat of FEATURE_CATEGORIES) {
+              const found = cat.features.find((f) => f.id === featureId);
+              if (found) {
+                label = found.label;
+                break;
+              }
+            }
+
+            return new Paragraph({
+              text: `• ${label}`,
+              bullet: { level: 0 },
+            });
+          }) || []),
           new Paragraph({
             children: [
               new TextRun({ text: "Complexity Score: ", bold: true }),

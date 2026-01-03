@@ -8,7 +8,7 @@ interface SharePageProps {
 }
 
 export async function generateMetadata(
-  props: SharePageProps
+  props: SharePageProps,
 ): Promise<Metadata> {
   const params = await props.params;
   const plan = await getPlanByToken(params.token);
