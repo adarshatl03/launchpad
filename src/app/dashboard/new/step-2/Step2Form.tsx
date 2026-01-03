@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useActionState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { ComplexityMeter } from "@/components/wizard/ComplexityMeter";
-import { cn } from "@/lib/utils";
+import { CategoryToggle } from "@/components/wizard/CategoryToggle";
+import { FeatureCard } from "@/components/wizard/FeatureCard";
 import { updatePlanStep } from "@/lib/actions/planActions";
 import { PlanInputs } from "@/types/plan";
+import { useFormPersistence } from "@/hooks/useFormPersistence";
 
 import { FEATURE_CATEGORIES as CATEGORIES } from "@/lib/config/features";
 
@@ -17,10 +19,17 @@ interface Step2FormProps {
 }
 
 export default function Step2Form({ planId, initialData }: Step2FormProps) {
-  // Initialize from saved data or empty default
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
+  // Persistence for features
+  const {
+    values: selectedFeatures,
+    setValues: setSelectedFeatures,
+    isHydrated,
+  } = useFormPersistence<string[]>(
+    `plan-${planId}-features`,
     initialData?.features || [],
   );
+
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id);
 
   const toggleFeature = (id: string) => {
     setSelectedFeatures((prev) =>
@@ -55,6 +64,12 @@ export default function Step2Form({ planId, initialData }: Step2FormProps) {
     ? `/dashboard/new/step-1?planId=${planId}`
     : "/dashboard/new/step-1";
 
+  // Prevent flash of hydration mismatch or empty state
+  if (!isHydrated) return null; // Or a skeleton
+
+  const currentCategoryFeatures =
+    CATEGORIES.find((c) => c.id === activeCategory)?.features || [];
+
   return (
     <form action={action} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {state?.error && (
@@ -63,7 +78,7 @@ export default function Step2Form({ planId, initialData }: Step2FormProps) {
         </div>
       )}
 
-      {/* Hidden Inputs to pass state to Server Action */}
+      {/* Hidden Inputs */}
       <input
         type="hidden"
         name="features"
@@ -71,58 +86,42 @@ export default function Step2Form({ planId, initialData }: Step2FormProps) {
       />
       <input type="hidden" name="score" value={normalizedScore} />
 
-      {/* Visual Complexity Meter (Sticky Sidebar on Desktop) */}
+      {/* Sidebar / Meter */}
       <div className="lg:col-span-1 order-last lg:order-last">
         <div className="sticky top-24">
           <ComplexityMeter score={normalizedScore} />
         </div>
       </div>
 
-      {/* Main Selection Area */}
+      {/* Main Content */}
       <div className="lg:col-span-2 space-y-8">
         <div className="space-y-1">
           <h2 className="text-xl font-semibold text-white">
             MVP Scope Builder
           </h2>
           <p className="text-sm text-neutral-400">
-            Select the features required for your Minimum Viable Product. Be
-            ruthless.
+            Select the features required for your Minimum Viable Product. Use
+            the toggles to explore categories.
           </p>
         </div>
 
-        <div className="space-y-8">
-          {CATEGORIES.map((category) => (
-            <div key={category.id} className="space-y-3">
-              <h3 className="text-md font-medium text-neutral-200 border-b border-neutral-800 pb-2">
-                {category.title}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {category.features.map((feature) => {
-                  const isSelected = selectedFeatures.includes(feature.id);
-                  return (
-                    <div
-                      key={feature.id}
-                      onClick={() => toggleFeature(feature.id)}
-                      className={cn(
-                        "cursor-pointer rounded-lg border p-4 transition-all hover:border-neutral-500",
-                        isSelected
-                          ? "border-green-500 bg-green-500/10 text-white"
-                          : "border-neutral-800 bg-neutral-900 text-neutral-400",
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
-                          {feature.label}
-                        </span>
-                        {isSelected && (
-                          <div className="h-2 w-2 rounded-full bg-green-500" />
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+        {/* Category Toggle */}
+        <CategoryToggle
+          options={CATEGORIES.map((c) => ({ id: c.id, label: c.title }))}
+          value={activeCategory}
+          onChange={setActiveCategory}
+        />
+
+        {/* Feature Grid for Active Category */}
+        <div className="grid grid-cols-1 gap-3">
+          {currentCategoryFeatures.map((feature) => (
+            <FeatureCard
+              key={feature.id}
+              label={feature.label}
+              cost={feature.cost}
+              isSelected={selectedFeatures.includes(feature.id)}
+              onToggle={() => toggleFeature(feature.id)}
+            />
           ))}
         </div>
 

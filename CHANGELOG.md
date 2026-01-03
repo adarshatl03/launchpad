@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [FE] Build Public Shared View (Token-based Read-only)
+- Security: Ensure no edit capabilities
+- [BE] Implement Share Token Logic (Read-only access)
 - Layout: Clean, distinct from Web UI
 - [BE] Implement `calculateMVPComplexity(inputs)`
 - Rule: No Auth -> Roles disabled
