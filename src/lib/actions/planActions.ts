@@ -71,7 +71,7 @@ export async function createPlan(prevState: unknown, formData: FormData) {
 export async function updatePlanStep(
   planId: string,
   step: number,
-  inputs: Partial<PlanInputs>,
+  inputs: Partial<PlanInputs>
 ) {
   const supabase = await createClient();
   const {
@@ -155,8 +155,7 @@ export async function finishPlan(planId: string) {
   }
 
   revalidatePath("/dashboard");
-  // Redirect to dashboard or detail view
-  redirect("/dashboard");
+  return { success: true };
 }
 
 export async function createSnapshot(planId: string, name: string) {

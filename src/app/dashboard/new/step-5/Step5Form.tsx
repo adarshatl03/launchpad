@@ -11,6 +11,7 @@ import {
   FileText,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { finishPlan, createShareToken } from "@/lib/actions/planActions";
 import { PlanInputs } from "@/types/plan";
 import { generatePlanPDF } from "@/lib/utils/pdfExport";
@@ -30,9 +31,15 @@ export default function Step5Form({
   initialData,
   shareToken: initialShareToken,
 }: Step5FormProps) {
+  const router = useRouter();
+
   const handleFinish = async () => {
     if (!planId) return;
-    await finishPlan(planId);
+    const result = await finishPlan(planId);
+    if (result && "success" in result && result.success) {
+      router.push("/dashboard");
+    }
+    return result;
   };
 
   const [isExportingPDF, setIsExportingPDF] = useState(false);

@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
+import { sendInviteEmail } from "@/lib/email";
 export async function createOrganization(name: string) {
   const supabase = await createClient();
   const {
@@ -42,7 +42,7 @@ export async function createOrganization(name: string) {
 export async function inviteMember(
   orgId: string,
   email: string,
-  role: "admin" | "editor" | "viewer",
+  role: "admin" | "editor" | "viewer"
 ) {
   const supabase = await createClient();
   const {
@@ -65,19 +65,47 @@ export async function inviteMember(
     return { error: "Insufficient permissions" };
   }
 
+  // Fetch inviter's profile for the name
+  const { data: inviterProfile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
+  const inviterName = inviterProfile?.full_name || user.email || "Someone";
+
+  // Fetch Org Name
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("name")
+    .eq("id", orgId)
+    .single();
+
+  const orgName = org?.name || "Organization";
+
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiry
 
-  const { error } = await supabase.from("invitations").insert({
-    organization_id: orgId,
-    email,
-    role,
-    expires_at: expiresAt.toISOString(),
-  });
+  const { data: invitation, error } = await supabase
+    .from("invitations")
+    .insert({
+      organization_id: orgId,
+      email,
+      role,
+      expires_at: expiresAt.toISOString(),
+    })
+    .select("token")
+    .single();
 
   if (error) {
     console.error("Error inviting member:", error);
     return { error: error.message };
+  }
+
+  // Send Email
+  if (invitation) {
+    const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${invitation.token}`;
+    await sendInviteEmail(email, inviterName, orgName, inviteLink);
   }
 
   revalidatePath(`/dashboard/teams/${orgId}`);
