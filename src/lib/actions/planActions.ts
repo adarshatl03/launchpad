@@ -10,6 +10,8 @@ const createPlanSchema = z.object({
   title: z.string().min(1, "Title is required"),
 });
 
+import { checkPlanLimits } from "./limitActions";
+
 export async function createPlan(prevState: unknown, formData: FormData) {
   const supabase = await createClient();
 
@@ -19,6 +21,17 @@ export async function createPlan(prevState: unknown, formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) {
     return { error: "Unauthorized" };
+  }
+
+  // Check limits
+  const limitCheck = await checkPlanLimits();
+  if (!limitCheck.allowed) {
+    return {
+      error:
+        limitCheck.reason === "limit_reached"
+          ? "Plan limit reached. Upgrade to Pro for unlimited plans."
+          : "Failed to check plan limits",
+    };
   }
 
   const title = formData.get("title") as string;

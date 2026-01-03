@@ -10,12 +10,16 @@ import {
   Settings,
   Sparkles,
   PlusCircle,
+  Users,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Plans", href: "/dashboard/plans", icon: Map },
+  { label: "Teams", href: "/dashboard/teams", icon: Users },
+  { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
