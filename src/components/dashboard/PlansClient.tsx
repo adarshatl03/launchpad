@@ -39,7 +39,11 @@ export function PlansClient({ plans }: PlansClientProps) {
           {plans.map((plan, index) => (
             <ScaleIn key={plan.id} delay={index * 0.05}>
               <Link
-                href={`/dashboard/new/step-${plan.current_step}?planId=${plan.id}`}
+                href={
+                  plan.status === "completed"
+                    ? `/dashboard/plans/${plan.id}`
+                    : `/dashboard/new/step-${plan.current_step}?planId=${plan.id}`
+                }
                 className="group block rounded-lg border border-neutral-800 bg-neutral-900/50 p-6 transition-all hover:border-neutral-700 hover:bg-neutral-900 hover:scale-[1.02]"
               >
                 <div className="space-y-2">

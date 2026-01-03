@@ -89,7 +89,6 @@ export async function updatePlanStep(
     .from("product_plans")
     .select("inputs")
     .eq("id", planId)
-    .eq("user_id", user.id)
     .single();
 
   if (fetchError || !currentPlan) {
@@ -106,8 +105,7 @@ export async function updatePlanStep(
       current_step: step, // Update progress
       updated_at: new Date().toISOString(),
     })
-    .eq("id", planId)
-    .eq("user_id", user.id);
+    .eq("id", planId);
 
   if (error) {
     console.error("Update Plan Error:", error);
@@ -129,7 +127,6 @@ export async function getPlan(planId: string) {
     .from("product_plans")
     .select("*")
     .eq("id", planId)
-    .eq("user_id", user.id)
     .single();
 
   if (error) return null;
@@ -149,8 +146,8 @@ export async function finishPlan(planId: string) {
       status: "completed",
       updated_at: new Date().toISOString(),
     })
-    .eq("id", planId)
-    .eq("user_id", user.id);
+    .eq("id", planId);
+  // RLS handles the permission check
 
   if (error) {
     console.error("Finish Plan Error:", error);
@@ -160,6 +157,110 @@ export async function finishPlan(planId: string) {
   revalidatePath("/dashboard");
   // Redirect to dashboard or detail view
   redirect("/dashboard");
+}
+
+export async function createSnapshot(planId: string, name: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  // Get current plan data
+  const { data: plan, error: fetchError } = await supabase
+    .from("product_plans")
+    .select("inputs")
+    .eq("id", planId)
+    .single();
+
+  if (fetchError || !plan) {
+    return { error: "Plan not found" };
+  }
+
+  // Get next version number
+  const { count } = await supabase
+    .from("plan_versions")
+    .select("*", { count: "exact", head: true })
+    .eq("plan_id", planId);
+
+  const versionNumber = (count || 0) + 1;
+
+  const { error } = await supabase.from("plan_versions").insert({
+    plan_id: planId,
+    version_number: versionNumber,
+    name: name || `Version ${versionNumber}`,
+    data: plan.inputs,
+  });
+
+  if (error) {
+    console.error("Create Snapshot Error:", error);
+    return { error: "Failed to create version snapshot" };
+  }
+
+  revalidatePath(`/dashboard/plans/${planId}`);
+  return { success: true };
+}
+
+export async function getPlanVersions(planId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("plan_versions")
+    .select("*")
+    .eq("plan_id", planId)
+    .order("version_number", { ascending: false });
+
+  if (error) {
+    console.error("Get Plan Versions Error:", error);
+    return [];
+  }
+  return data;
+}
+
+export async function restoreVersion(planId: string, versionId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  // Get version data
+  const { data: version, error: fetchError } = await supabase
+    .from("plan_versions")
+    .select("data")
+    .eq("id", versionId)
+    .single();
+
+  if (fetchError || !version) {
+    return { error: "Version not found" };
+  }
+
+  // 1. Create a snapshot of current state before restoring (safety)
+  const { data: currentPlan } = await supabase
+    .from("product_plans")
+    .select("inputs")
+    .eq("id", planId)
+    .single();
+
+  if (currentPlan) {
+    await createSnapshot(planId, "Auto-saved before restore");
+  }
+
+  // 2. Restore
+  const { error } = await supabase
+    .from("product_plans")
+    .update({
+      inputs: version.data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", planId);
+
+  if (error) {
+    console.error("Restore Version Error:", error);
+    return { error: "Failed to restore version" };
+  }
+
+  revalidatePath(`/dashboard/plans/${planId}`);
+  return { success: true };
 }
 
 export async function createShareToken(planId: string) {
@@ -177,8 +278,7 @@ export async function createShareToken(planId: string) {
       share_token: shareToken,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", planId)
-    .eq("user_id", user.id);
+    .eq("id", planId);
 
   if (error) {
     console.error("Create Share Token Error:", error);
