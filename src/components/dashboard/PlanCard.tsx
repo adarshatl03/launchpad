@@ -41,10 +41,15 @@ export function PlanCard({ plan }: PlanCardProps) {
 
       <div className="mt-6">
         <Link
-          href={`/plan/${plan.id}`}
+          href={
+            plan.status === "completed"
+              ? `/dashboard/new/step-5?planId=${plan.id}`
+              : `/dashboard/new/step-1?planId=${plan.id}`
+          }
           className="inline-flex items-center gap-2 text-sm font-medium text-zinc-400 group-hover:text-white transition-colors"
         >
-          View Plan <ArrowRight className="h-4 w-4" />
+          {plan.status === "completed" ? "View Plan" : "Continue Editing"}{" "}
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </div>
